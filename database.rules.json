@@ -1,0 +1,33 @@
+{
+  "rules": {
+    ".read": "root.child(auth.uid).child('admin').val() == true",
+    ".write": "(root.child(auth.uid).child('admin').val() == true) || (auth.uid != null && root.child(auth.uid).exists() == false)",
+    "$user_id": {
+      ".read": "$user_id == auth.uid",
+      "counter": {
+        ".write": "true"
+      },
+    	"email": {
+        ".write": "true"
+      },
+      "name": {
+        ".write": "true"
+      },
+      "sessions": {
+        ".write": "true"
+      },
+      "state": {
+        ".write": "true"
+      },
+      "totalSessions": {
+        ".write": "true"
+      },
+      "totalTime": {
+        ".write": "true"
+      },
+      "admin": {
+        ".write": "root.child(auth.uid).child('admin').exists() == false"
+      },
+    }
+  }
+}

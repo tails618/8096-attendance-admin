@@ -1,0 +1,15 @@
+{
+  "projects": {
+    "default": "attendance-test-cc32a"
+  },
+  "targets": {
+    "attendance-test-cc32a": {
+      "hosting": {
+        "admin": [
+          "8096-attendance-admin"
+        ]
+      }
+    }
+  },
+  "etags": {}
+}
