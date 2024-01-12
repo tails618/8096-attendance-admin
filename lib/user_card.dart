@@ -30,21 +30,33 @@ class _UserCardState extends State<UserCard> {
   @override
   Widget build(BuildContext context) {
     return Card(
-      color: (userState != null && userState == 'in') ? Colors.red[100] : Theme.of(context).cardColor,
+      color: (userState != null && userState == 'in')
+          ? Colors.green[600]
+          : Colors.red[300],
       child: Padding(
         // padding: const EdgeInsets.only(top: 36.0, left: 6.0, right: 6.0, bottom: 6.0),
         padding:
             const EdgeInsets.only(top: 6.0, left: 6.0, right: 6.0, bottom: 6.0),
         child: Theme(
           data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
-          child: ExpansionTile(
-            title: Text(name ?? 'Loading...'),
-            children: <Widget>[
-              Text('Email: $email'),
-              Text('Sessions: $totalSessions'),
-              Text('State: $userState'),
-              Text('Total Time: $totalTime'),
-            ],
+          child: DefaultTextStyle(
+            style: TextStyle(
+                color: (userState != null && userState == 'in')
+                    ? Colors.black
+                    : Theme.of(context).colorScheme.onSurface),
+            child: ExpansionTile(
+              title: Text(name ?? 'Loading...',
+                  style: TextStyle(
+                      color: (userState != null && userState == 'in')
+                          ? Colors.black
+                          : Theme.of(context).colorScheme.onSurface)),
+              children: <Widget>[
+                Text('Email: $email'),
+                Text('Sessions: $totalSessions'),
+                Text('State: $userState'),
+                Text('Total Time: $totalTime'),
+              ],
+            ),
           ),
         ),
       ),
