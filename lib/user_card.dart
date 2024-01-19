@@ -62,13 +62,16 @@ class _UserCardState extends State<UserCard> {
                 Text('Total Time: $totalTime'),
                 Visibility(
                     visible: userState == 'in',
-                    child: ElevatedButton(
-                        onPressed: () async {
-                          await FirebaseFunctions.instance
-                              .httpsCallable('uidSignOut')
-                              .call({"uid": uid});
-                        },
-                        child: const Text('Stop time')))
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: ElevatedButton(
+                          onPressed: () async {
+                            await FirebaseFunctions.instance
+                                .httpsCallable('uidSignOut')
+                                .call({"uid": uid});
+                          },
+                          child: const Text('Stop time')),
+                    ))
               ],
             ),
           ),
