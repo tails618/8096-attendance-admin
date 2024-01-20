@@ -68,7 +68,7 @@ class SignOutButton extends StatelessWidget {
         Auth().signOut();
         html.window.location.reload();
       },
-      child: const Text('Sign Out'),
+      child: const Text('Sign out of account'),
     );
   }
 }

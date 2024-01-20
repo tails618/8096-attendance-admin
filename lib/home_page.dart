@@ -14,7 +14,10 @@ class HomePage extends StatefulWidget {
 
 class HomePageState extends State<HomePage> {
   String? email = '';
+  String? uid = '';
   String? name = '';
+  bool paused = false;
+  int pauseCounter = 0;
 
   DatabaseReference ref = FirebaseDatabase.instance.ref();
   var auth = Auth().firebaseAuth;
@@ -23,7 +26,6 @@ class HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    // return const Text('Hello World');
     return Center(
       child: SingleChildScrollView(
         child: Column(
@@ -50,6 +52,11 @@ class HomePageState extends State<HomePage> {
                     child: SignOutButton(context: context)),
                 Text('Email: $email'),
                 Text('Name: $name'),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: togglePauseButton(context),
+                ),
+                Text('Paused: $paused'),
                 ScrollConfiguration(
                   behavior:
                       ScrollConfiguration.of(context).copyWith(dragDevices: {
@@ -82,6 +89,9 @@ class HomePageState extends State<HomePage> {
       Map<dynamic, dynamic> values = snapshot.value as Map;
       List<dynamic> keys = values.keys.toList();
       for (final uid in keys) {
+        if (uid == 'pause') {
+          continue;
+        }
         userCards.add(UserCard(uid: uid));
       }
     });
@@ -90,11 +100,15 @@ class HomePageState extends State<HomePage> {
         configUser();
       }
     });
+
+    ref.child('pause').onValue.listen((event) {
+      reloadPause();
+    });
   }
 
   void configUser() {
-    email = auth.currentUser?.uid;
-    if (email != null && email != '') {
+    uid = auth.currentUser?.uid;
+    if (uid != null && uid != '') {
       reload();
     }
   }
@@ -107,7 +121,7 @@ class HomePageState extends State<HomePage> {
   }
 
   void reload() async {
-    DataSnapshot snapshot = await ref.child(email!).get();
+    DataSnapshot snapshot = await ref.child(uid!).get();
     if (snapshot.value == null) {
       newUser();
     } else {
@@ -116,6 +130,51 @@ class HomePageState extends State<HomePage> {
         name = auth.currentUser?.displayName;
       });
     }
+  }
+
+  void reloadPause() async {
+    DataSnapshot snapshot = await ref.child('pause').get();
+    if (snapshot.value == null) {
+      configPause();
+    } else {
+      setState(() {
+        paused = snapshot.child('paused').value as bool;
+        pauseCounter = snapshot.child('counter').value as int;
+      });
+    }
+  }
+
+  void configPause() {
+    ref.child('pause/counter').set(0);
+    ref.child('pause/pauses').set(null);
+    ref.child('pause/paused').set(false);
+  }
+
+  void startPause() {
+    ref
+        .child('pause/pauses/$pauseCounter/pauseStart')
+        .set(DateTime.now().millisecondsSinceEpoch);
+    ref.child('pause/paused').set(true);
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Paused'),
+        duration: Duration(milliseconds: 1000),
+      ),
+    );
+  }
+
+  void endPause() {
+    ref
+        .child('pause/pauses/$pauseCounter/pauseEnd')
+        .set(DateTime.now().millisecondsSinceEpoch);
+    ref.child('pause/counter').set(pauseCounter + 1);
+    ref.child('pause/paused').set(false);
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Unpaused'),
+        duration: Duration(milliseconds: 1000),
+      ),
+    );
   }
 
   void setUserVal(String child, Object val) {
@@ -128,5 +187,18 @@ class HomePageState extends State<HomePage> {
                 SnackBar(content: Text(e)),
               )
             });
+  }
+
+  ElevatedButton togglePauseButton(BuildContext context) {
+    return ElevatedButton(
+      onPressed: () async {
+        if (paused) {
+          endPause();
+        } else {
+          startPause();
+        }
+      },
+      child: Text(paused ? 'End pause' : 'Start pause'),
+    );
   }
 }
