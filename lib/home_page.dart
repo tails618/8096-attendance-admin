@@ -85,16 +85,8 @@ class HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
 
-    ref.get().then((DataSnapshot snapshot) {
-      Map<dynamic, dynamic> values = snapshot.value as Map;
-      List<dynamic> keys = values.keys.toList();
-      for (final uid in keys) {
-        if (uid == 'pause') {
-          continue;
-        }
-        userCards.add(UserCard(uid: uid));
-      }
-    });
+    createUserCards();
+
     auth.authStateChanges().listen((User? newUser) {
       if (newUser != null) {
         configUser();
@@ -104,6 +96,30 @@ class HomePageState extends State<HomePage> {
     ref.child('pause').onValue.listen((event) {
       reloadPause();
     });
+  }
+
+  Future<void> createUserCards() async {
+    DataSnapshot snapshot = await ref.get();
+    Map<dynamic, dynamic> names = {};
+    Map<dynamic, dynamic> values = snapshot.value as Map;
+    for (final uid in values.keys) {
+      if (uid == 'pause') {
+        continue;
+      }
+      String name = snapshot.child(uid).child('name').value as String;
+      names[uid] = name;
+    }
+
+    List<MapEntry<dynamic, dynamic>> namesList = names.entries.toList();
+    namesList.sort((a, b) => a.value.compareTo(b.value));
+
+    Map<dynamic, dynamic> sortedNames = Map.fromEntries(namesList);
+
+    List<dynamic> sortedKeys = sortedNames.keys.toList();
+
+    for (final uid in sortedKeys) {
+      userCards.add(UserCard(uid: uid));
+    }
   }
 
   void configUser() {
