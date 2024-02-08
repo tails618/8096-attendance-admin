@@ -23,6 +23,7 @@ class _UserCardState extends State<UserCard> {
   int? totalTimeMilliseconds;
   String? totalTime;
   DateTime? lastEventTime;
+  bool? cancelled;
 
   @override
   void initState() {
@@ -90,7 +91,15 @@ class _UserCardState extends State<UserCard> {
     } else {
       String formattedDate =
           DateFormat('h:mm a, d MMMM yyyy').format(lastEventTime!);
-      wrappedFormattedDate = '(Checked out: $formattedDate)';
+      String cancelledString;
+
+      if (cancelled == true) {
+        cancelledString = 'Last session invalid, ';
+      } else {
+        cancelledString = '';
+      }
+
+      wrappedFormattedDate = '(${cancelledString}Checked out: $formattedDate)';
     }
     return '$name $wrappedFormattedDate';
   }
@@ -117,7 +126,11 @@ class _UserCardState extends State<UserCard> {
       totalSessions = snapshot.child('totalSessions').value as int;
       userState = snapshot.child('state').value.toString();
       int counter = snapshot.child('counter').value as int;
+
+      cancelled = snapshot.child('sessions/${counter - 1}/cancelled').value as bool?;
+
       if (counter == 0) {
+        cancelled = true;
         lastEventTime = DateTime.fromMillisecondsSinceEpoch(0);
       } else {
         if (userState == 'in') {

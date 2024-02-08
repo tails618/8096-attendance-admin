@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'dart:html' as html;
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -139,7 +140,26 @@ class HomePageState extends State<HomePage> {
   void reload() async {
     DataSnapshot snapshot = await ref.child(uid!).get();
     if (snapshot.value == null) {
-      newUser();
+      // ignore: use_build_context_synchronously
+      showDialog<String>(
+            context: context,
+            builder: (BuildContext context) => AlertDialog(
+              title: const Text('New User'),
+              content: const Text(
+                  'Please sign in to the team member app to create an account, and contact an admin to access this page.'),
+              actions: <Widget>[
+                TextButton(
+                  onPressed: () {
+                    Navigator.pop(context, 'OK');
+                    },
+                  child: const Text('Ok'),
+                ),
+              ],
+            ),
+          ).then((value) {
+            auth.signOut();
+            html.window.location.reload();
+          });
     } else {
       setState(() {
         email = auth.currentUser?.email;

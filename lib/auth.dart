@@ -44,6 +44,7 @@ class SignInButton extends StatelessWidget {
     return ElevatedButton(
       onPressed: () {
         Auth().signInWithGoogle().then((value) => html.window.location.reload());
+        // Auth().signInWithGoogle();
         FirebaseAuth.instance.authStateChanges().listen((User? user) {
           // html.window.location.reload();
         });
